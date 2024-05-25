@@ -1,0 +1,10 @@
+einops
+flax
+jax
+jaxlib
+matplotlib
+ml-dtypes
+ml_collections
+numpy
+pandas
+streamlit
