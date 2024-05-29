@@ -9,9 +9,33 @@ st.title("Neural Networks for Wave Functions Parameterization")
 st.write(
     """
         ## Welcome
-        This app allows you to explore the parameterization of wave functions using neural networks. A tutorial to introduce 
-        Physicists to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational 
+        This app allows you to explore the parameterization of wave functions using neural networks. This tutorial will introduce 
+        you to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational 
         monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms.
+
+        ### Physics of the Problem
+
+        Let us consider the physics of the problem.
+
+        - We are looking at a 2D lattice of Rydberg atoms
+        - We will be using the Ising Model
+        - We are assuming all-to-all interaction between all lattice sites
+        - The Hamiltonian is as follows
+
+        $$
+        \begin{equation}
+            \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right )
+        \end{equation} + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
+        $$
+
+        where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
+
+
+        ### A Bird's Eyeview of the Approach
+        - Take some arbitrary parameterized wave function (neural network)
+        - Sample from it
+        - Compute the expectation value of the energy
+        - Vary your parameters based using some optimization function
     """
 )
 

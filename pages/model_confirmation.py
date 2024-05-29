@@ -30,7 +30,7 @@ if st.button("Confirm Model"):
         
         st.markdown(f"""
             Welldone! You are ready to use {model_type}. Remember that you can 
-            always change your configuration by going back to the previous page.
+            always change your configuration by going back to the previous page. Remember to save your configuration.
         """)
 
 

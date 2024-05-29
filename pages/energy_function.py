@@ -1,6 +1,7 @@
 import tempfile
 import subprocess
 import streamlit as st
+from code_editor import code_editor
 
 st.markdown('<link href="../static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
 st.title("Energy Function")
@@ -29,13 +30,33 @@ try:
 except FileNotFoundError:
     boilerplate_code = "# Boilerplate code file not found."
 
-# Provide a text area for code entry
-user_code = st.text_area("Complete the task by replacing all the ToDos:", value=boilerplate_code, height=300)
+
+# Provide a code editor for the user to edit the code
+st.write(
+    """
+    ### Compute the Local Energy
+    Replace all the `ToDo` in the code below with the appropriate code to compute the local energy.
+    """
+)
+
+boilerplate_code = """
+# Import Libraries
+import numpy as np
+
+# Define the Local Energy
+def local_energy():
+    '''Compute the local energy of the wave function.'''
+    print('Hello World!')
+
+local_energy()
+"""
+
+completed_code = code_editor(boilerplate_code, lang='python')
 
 if st.button("Run Code"):
-    if user_code:
+    if completed_code:
         with st.spinner("Running your code..."):
-            output, error = run_user_code(user_code)
+            output, error = run_user_code(completed_code)
 
         if error:
             st.error(f"Error:\n{error}")
