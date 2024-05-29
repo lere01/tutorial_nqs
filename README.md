@@ -2,10 +2,32 @@
 
 A tutorial to introduce Physicists to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms
 
-## Inspiration and Materials for the Tutorial
+Inspiration (and some code) for this tutorial was drawn from 
+
+- [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
+- [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
+- [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
+- [Deep Learning Cookbook](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+
+You can consult the links for further knowledge.
+
 
 ## Physics of the Problem
 
+Let us consider the physics of the problem.
+
+- We are looking at a 2D lattice of Rydberg atoms
+- We will be using the Ising Model
+- We are assuming all-to-all interaction between all lattice sites
+- The Hamiltonian is as follows
+
+$$
+\begin{equation}
+\tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right )
+\end{equation} + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
+$$
+
+where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
 
 ## Models
 
