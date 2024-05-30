@@ -8,3 +8,4 @@ ml_collections
 numpy
 pandas
 streamlit
+streamlit-code-editor

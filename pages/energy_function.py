@@ -1,7 +1,15 @@
+import os
+import json
 import tempfile
 import subprocess
 import streamlit as st
+import textwrap
 from code_editor import code_editor
+
+cwd = os.getcwd()
+button_file_path = os.path.join(cwd, "static", "buttons.json")
+with open(button_file_path, "r") as file:
+    buttons = json.load(file)
 
 st.markdown('<link href="../static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
 st.title("Energy Function")
@@ -39,32 +47,61 @@ st.write(
     """
 )
 
-boilerplate_code = """
-# Import Libraries
-import numpy as np
+boilerplate_code = textwrap.dedent(
+    """
+    # Import Libraries
+    import numpy as np
 
-# Define the Local Energy
-def local_energy():
-    '''Compute the local energy of the wave function.'''
-    print('Hello World!')
+    # Define the Local Energy
+    def local_energy():
+        '''Compute the local energy of the wave function.'''
+        print('Hello World!')
 
-local_energy()
-"""
+    local_energy()
 
-completed_code = code_editor(boilerplate_code, lang='python')
+    print('Completed!')
+    """
+)
+
+# Display the code editor
+completed_code = code_editor(
+    boilerplate_code,
+    lang="python",
+    theme="contrast",
+    height=300,
+    buttons=buttons,
+)
+
+# print("Completed Code: \n", type(completed_code), "\n\n", completed_code.get("text"))
+
+if completed_code['type'] == 'submit':
+    st.write("Response type: ", completed_code['type'])
+    st.code(completed_code['text'], language=completed_code['lang'])
+    
+    exec_globals = {}
+    exec(completed_code['text'], exec_globals)
 
 if st.button("Run Code"):
-    if completed_code:
-        with st.spinner("Running your code..."):
-            output, error = run_user_code(completed_code)
+        print("Running code...", completed_code['text'])
+        exec_globals = {}
+        try:
+            st.code(completed_code, language="python")
+            exec(completed_code['text'], exec_globals)
+        except Exception as e:
+            st.error(f"Error executing code: {e}")
 
-        if error:
-            st.error(f"Error:\n{error}")
-        else:
-            st.success("Code ran successfully!")
-            st.text(f"Output:\n{output}")
-    else:
-        st.warning("Please enter some code before running.")
+# if st.button("Run Code"):
+#     if completed_code:
+#         with st.spinner("Running your code..."):
+#             output, error = run_user_code(completed_code)
+
+#         if error:
+#             st.error(f"Error:\n{error}")
+#         else:
+#             st.success("Code ran successfully!")
+#             st.text(f"Output:\n{output}")
+#     else:
+#         st.warning("Please enter some code before running.")
 
 
 # Footer Navigation

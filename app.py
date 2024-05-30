@@ -6,8 +6,8 @@ st.markdown('<link href="static/css/styles.css" rel="stylesheet">', unsafe_allow
 st.title("Neural Networks for Wave Functions Parameterization")
 
 # Body Section
-st.write(
-    """
+st.markdown(
+    r"""
         ## Welcome
         This app allows you to explore the parameterization of wave functions using neural networks. This tutorial will introduce 
         you to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational 
@@ -24,24 +24,35 @@ st.write(
 
         $$
         \begin{equation}
-            \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right )
-        \end{equation} + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
+            \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
+        \end{equation} 
         $$
 
         where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
 
+        - $\Omega$ is the Rabi frequency
+        - $\delta$ is the detuning
+        - $\hat{\sigma}_i^x$ is the Pauli-X matrix
+        - $\hat{n}_i$ is the number operator
+        - $V_{ij}$ is the interaction potential
+        - $N$ is the number of lattice sites
+        
+        Note that we set $\Omega$ = $\delta$ = 1. This is to put the system near the critical point.
+
 
         ### A Bird's Eyeview of the Approach
-        - Take some arbitrary parameterized wave function (neural network)
-        - Sample from it
-        - Compute the expectation value of the energy
-        - Vary your parameters based using some optimization function
+        - Step 1: Take some arbitrary parameterized wave function (neural network)
+        - Step 2: Sample from it
+        - Step 3: Compute the expectation value of the energy
+        - Step 4: Vary your parameters using some optimization function
+        - Repeat Steps 2-4 until you reach the ground state
     """
 )
 
 # Next Page
 st.write(
     """
+        ---
         Let's Get Started. Click the button below to get started.
     """
 )

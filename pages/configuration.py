@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from startup import prepare_file_system
 from definitions.enums import ModelType
@@ -48,10 +49,26 @@ def main():
     )
 
     # Body Section
-    st.write(
+    cwd = os.getcwd()
+    image_path = os.path.join(cwd, "pages", "images", "nn_models.png")
+    st.image(image_path)
+
+    st.markdown(
         """
-            In the sidebar, you will be able to select different models and play around with hyperparameters. 
-            You should see the controls on your left. If not click the `>` button. 
+            The above image was taken from [Sprague and Czischek](https://www.nature.com/articles/s42005-024-01584-y/figures/1). It shows some of the neural network 
+            architectures used by Physicist across different areas. However, we will only be dealing with only two of them in this tutorial - Recurrent Neural Network (RNN) and, 
+            Transformer (self-attention). For those who might be interested in the detail, we will be using the Gated Recurrent Unit (GRU) flavour of the RNN. 
+            On this page, you will be able to do three things:
+            
+            - Select which of the two models you would like to use
+            - Configure the hyperparameters of the model
+            - Configure the hyperparameters of the Variational Monte Carlo (VMC) approach
+
+
+            You should see the controls on in the sidebar; your left. If not click the `>` button. In the sidebar, you will be able to select one of two models and see 
+            the parameters on the main page. You can also configure the hyperparameters of the model and the VMC approach. Remember to click the `Save Configuration` button 
+            to save your configuration. Once saved, you can proceed to the next step.
+            
             
             **Note**: Disabled inputs are not configurable as they are set to default values.
         """
