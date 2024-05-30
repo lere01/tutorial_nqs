@@ -25,7 +25,7 @@ st.markdown(
 
         - We are looking at a 2D lattice of Rydberg atoms
         - We will be using the Ising Model
-        - We are assuming all-to-all interaction between all lattice sites
+        - We are assuming all-to-all interaction among lattice sites
         - The Hamiltonian is as follows
 
         $$
@@ -34,16 +34,17 @@ st.markdown(
         \end{equation} 
         $$
 
-        where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
+        where $V_{ij} = \frac{\Omega R_b^6}{| \textbf{r}_i - \textbf{r}_j |^6}$ and $R_b$ is the Rydberg blockade radius.
 
         - $\Omega$ is the Rabi frequency
         - $\delta$ is the detuning
         - $\hat{\sigma}_i^x$ is the Pauli-X matrix
         - $\hat{n}_i$ is the number operator
-        - $V_{ij}$ is the interaction potential
+        - Atoms at positions $\textbf{r}_i$ and $\textbf{r}_j$ interact through the van der Waals potential, $V_{ij}$
         - $N$ is the number of lattice sites
         
-        Note that we set $\Omega$ = $\delta$ = 1. This is to put the system near the critical point.
+        Note that we set $\Omega = \delta = 1$ and $R_b = 7^{\frac{1}{2}}$. This is to put the system in the vicinity of transition between the ordered 
+        and striated phase.
 
 
         ### A Bird's Eyeview of the Approach
@@ -52,6 +53,7 @@ st.markdown(
         - Step 3: Compute the expectation value of the energy
         - Step 4: Vary your parameters using some optimization function
         - Repeat Steps 2-4 until you reach the ground state
+        - Our training metric is the energy density of the system
     """
 )
 

@@ -5,9 +5,10 @@ class MyVMC(VMC):
     def local_energy(self, samples, params, model, log_psi) -> List[float]:
         output = jnp.zeros((samples.shape[0]), dtype=jnp.float32)
 
+        #** TODO_1: Somemething is missing here **#
         def step_fn_chemical(i, state):
             s, output = state
-            output += - self.delta * s[:, i]
+            output += - `CHANGE_ME` * s[:, i] # Do we need to multiply by the chemical potential?
             return s, output
 
         # Compute the interaction term
@@ -17,11 +18,12 @@ class MyVMC(VMC):
             return samples, pairs, multipliers, output
 
         # Compute the off-diagonal term
+        #** TODO_2: Somemething is missing here **#
         def step_fn_transverse(i, state):
             s, output = state
             flipped_state = s.at[:, i].set(1 - s[:, i])
             flipped_logpsi = self.logpsi(flipped_state, params, model)
-            output += - self.Omega * jnp.exp(flipped_logpsi - log_psi)
+            output += - 0.5 * `CHANGE_ME` * jnp.exp(flipped_logpsi - log_psi) # Something about the Rabi frequency
             return s, output
 
         # Interaction Term
@@ -34,7 +36,8 @@ class MyVMC(VMC):
         _, chemical_potential = lax.fori_loop(0, 16, step_fn_chemical, (samples, output))
 
         # Total energy
-        loc_e = transverse_field + chemical_potential + interaction_term
+        #** TODO_3: Somemething very wrong here **#
+        loc_e = `CHANGE_ME` + `CHANGE_ME` + `CHANGE_ME` # What should be the total energy?
         
         return loc_e
 
@@ -51,34 +54,10 @@ my_vmc = MyVMC(
     num_hidden_units=vmc_config.num_hidden_units
 )
 
-# print(my_vmc)
+# Initialize the model
+dummy_input = jnp.zeros((vmc_config.n_samples, vmc_config.sequence_length, vmc_config.output_dim))
+params = model.init(rng_key, dummy_input)
+e_den = my_vmc.train(rng_key, params, model)
 
-# # Initialize the model
-# dummy_input = jnp.zeros((vmc_config.n_samples, vmc_config.sequence_length, vmc_config.output_dim))
-# params = model.init(rng_key, dummy_input)
-# e_den = my_vmc.train(rng_key, params, model)
-
-# print('Completed!')
-
-output_container = st.empty()
-    
-# Redirect stdout to capture print statements
-old_stdout = sys.stdout
-new_stdout = io.StringIO()
-sys.stdout = new_stdout
-
-try:
-    print(my_vmc)
-
-    # Initialize the model
-    dummy_input = jnp.zeros((vmc_config.n_samples, vmc_config.sequence_length, vmc_config.output_dim))
-    params = model.init(rng_key, dummy_input)
-    e_den = my_vmc.train(rng_key, params, model)
-
-    print('Completed!')
-except Exception as e:
-    st.error(f"Error executing code: {e}")
-finally:
-    sys.stdout = old_stdout
-
-output_container.text(new_stdout.getvalue())
+state.densities = [(i.mean() / vmc_config.sequence_length).item() for i in e_den]
+state.training_completed = True

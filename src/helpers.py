@@ -38,7 +38,7 @@ def get_all_interactions_jax(n: int) -> tuple:
     # Extract unique pairs, distances, and calculate multipliers
     unique_pairs = jnp.argwhere(mask)
     unique_distances = distances[mask]
-    multipliers = 1 / unique_distances ** 6
+    multipliers = 7 / unique_distances ** 6
 
     return unique_pairs, multipliers
 
@@ -119,7 +119,7 @@ def local_energy_opt(samples, log_psi, model, params, pairs, multipliers, *, Ome
       s, output = state
       flipped_state = s.at[:, i].set(1 - s[:, i])
       flipped_logpsi = logpsi(flipped_state, model, params, N = 16, K = 2, nh = 64)
-      output += - Omega * jnp.exp(flipped_logpsi - log_psi)
+      output += - 0.5 * Omega * jnp.exp(flipped_logpsi - log_psi)
       return s, output
 
 

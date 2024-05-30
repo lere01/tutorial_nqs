@@ -83,23 +83,6 @@
         }
     },
     {
-        "name": "Save",
-        "feather": "Save",
-        "hasText": true,
-        "commands": [
-            "save-state",
-            [
-                "response",
-                "saved"
-            ]
-        ],
-        "response": "saved",
-        "style": {
-            "bottom": "calc(50% - 4.25rem)",
-            "right": "0.4rem"
-        }
-    },
-    {
         "name": "Run Code",
         "feather": "Play",
         "primary": true,

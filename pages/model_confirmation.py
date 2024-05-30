@@ -1,6 +1,12 @@
 import streamlit as st
 from models import get_model
 
+st.set_page_config(
+    page_title="Model Confirmation - NQS Tutorial",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 st.markdown('<link href="../static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
 st.title("Neural Quantum State")
 
