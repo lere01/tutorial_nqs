@@ -2,8 +2,9 @@ import os
 import streamlit as st
 from startup import prepare_file_system
 from definitions.enums import ModelType
-from definitions.configs import RNNConfig, VMCConfig, TransformerConfig
+from definitions.configs import RNNConfig, VMCConfig, TransformerConfig, VMCModel
 from typing import NamedTuple, get_type_hints, List, Dict
+# import streamlit_pydantic as sp
 
 def get_widget(description, field_type, default_value, disabled=False):
         if field_type == int:
@@ -12,10 +13,11 @@ def get_widget(description, field_type, default_value, disabled=False):
             return st.number_input(description, min_value=0.00005, value=default_value, step=0.001, disabled=disabled)
 
 def get_sidebar_widget(description, field_type, default_value, disabled=False):
-        if field_type == int:
-            return st.sidebar.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
-        elif field_type == float:
-            return st.sidebar.number_input(description, min_value=0.00005, value=default_value, step=0.001, disabled=disabled)
+        if description != "Num Hidden Units":
+            if field_type == int:
+                return st.sidebar.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
+            elif field_type == float:
+                return st.sidebar.number_input(description, min_value=0.00005, value=default_value, step=0.001, disabled=disabled)
     
 
 def get_widget_group(config: NamedTuple, exclude_list: List[str], sidebar=False) -> Dict:  
@@ -38,6 +40,13 @@ def get_widget_group(config: NamedTuple, exclude_list: List[str], sidebar=False)
     return widget_group
 
 def main():
+    st.set_page_config(
+    page_title="Configuration - NQS Tutorial",
+    page_icon="",
+    layout="wide",
+    )
+
+
     st.markdown('<link href="../static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
     st.title("Configuration Parameters")
 
@@ -74,6 +83,8 @@ def main():
         """
     )
 
+    # sp.pydantic_form(key="vmcconfig", model=VMCModel)
+
     # Model selection
     options=[(model.name) for model in ModelType]
     model_type = st.sidebar.selectbox("Choose Model", options)
@@ -88,7 +99,7 @@ def main():
     if model_type == ModelType.RNN.name:
         st.write(""" ### RNN Configuration """)
         output_dim = st.number_input("Output Dimension (Only 2 is supported)", min_value=2, max_value=2, value=2, disabled=True)
-        num_hidden_units = st.number_input("Output Dimension", min_value=4, max_value=64, value=16, step=4)
+        num_hidden_units = st.number_input("Number of Hidden Units", min_value=4, max_value=64, value=64, step=4)
             
         model_config = RNNConfig(output_dim, num_hidden_units)
         
@@ -101,8 +112,14 @@ def main():
 
     if st.button("Save Configuration"):
         st.session_state.model_type = ModelType[model_type]
-        st.session_state.vmc_config = VMCConfig(**vmc_config)
         st.session_state.model_config = model_config
+
+        vmc_config["num_hidden_units"] = 64
+        st.session_state.vmc_config = VMCConfig(
+            **vmc_config
+        )
+        
+
 
         st.write("Configuration Saved Successfully! You can now proceed to the next step.")
         st.session_state.configuration_saved = True

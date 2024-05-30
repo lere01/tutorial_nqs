@@ -1,6 +1,7 @@
 # src/definitions/configs.py
 
 from typing import NamedTuple
+from pydantic import BaseModel
 
 class RNNConfig(NamedTuple):
     output_dim: int = 2
@@ -24,3 +25,13 @@ class VMCConfig(NamedTuple):
 
 RNNConfigType = RNNConfig
 TransformerConfigType = TransformerConfig
+
+
+class VMCModel(BaseModel):
+    nsamples: int = 1000
+    n: int = 4
+    learning_rate: float = 0.005
+    num_epochs: int = 1000
+    output_dim: int = 2
+    sequence_length: int = 16
+    num_hidden_units: int = 64

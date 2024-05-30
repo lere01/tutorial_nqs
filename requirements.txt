@@ -7,5 +7,7 @@ ml-dtypes
 ml_collections
 numpy
 pandas
+pydantic
 streamlit
 streamlit-code-editor
+streamlit-pydantic

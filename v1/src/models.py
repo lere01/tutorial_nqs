@@ -113,9 +113,9 @@ class ModelFactory:
 
 
 def get_model(model_type: ModelType) -> QuantumModelProtocol:
-    if model_type == ModelType.RNN:
+    if model_type.value == 1:
         return RNNModel
-    elif model_type == ModelType.TRANSFORMER:
+    elif model_type.value == 2:
         return TransformerModel
     else:
         raise ModelTypeError(model_type)

@@ -33,6 +33,8 @@ if st.button("Confirm Model"):
             always change your configuration by going back to the previous page. Remember to save your configuration.
         """)
 
+        st.text(st.session_state.model_config)
+
 
         st.markdown("""
             Now, let us look at the architecture of our approach. All the following have been 

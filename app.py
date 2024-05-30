@@ -2,6 +2,12 @@ import startup ## this has to be the first import
 import streamlit as st
 
 
+st.set_page_config(
+    page_title="Welcome - NQS Tutorial",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 st.markdown('<link href="static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
 st.title("Neural Networks for Wave Functions Parameterization")
 
