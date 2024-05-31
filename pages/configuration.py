@@ -1,8 +1,8 @@
 import os
 import streamlit as st
 from startup import prepare_file_system
-from definitions.enums import ModelType
-from definitions.configs import RNNConfig, VMCConfig, TransformerConfig, VMCModel
+from rnn_model.definitions.enums import ModelType
+from rnn_model.definitions.configs import RNNConfig, VMCConfig, TransformerConfig, VMCModel
 from typing import NamedTuple, get_type_hints, List, Dict
 # import streamlit_pydantic as sp
 

@@ -9,7 +9,7 @@ from streamlit_extras.let_it_rain import rain
 from streamlit_extras.switch_page_button import switch_page
 
 
-from vmc import VMC
+from rnn_model.vmc import VMC
 from jax import lax, random
 import jax.numpy as jnp
 from typing import List
@@ -65,7 +65,7 @@ boilerplate_code = textwrap.dedent(
     """
 )
 
-runner_code_file = os.path.join(cwd, "src", "runner.py")
+runner_code_file = os.path.join(cwd, "src", "rnn_model", "runner.py")
 with open(runner_code_file, "r") as file:
     runner_code = file.read()
 run_model_code = textwrap.dedent(runner_code)

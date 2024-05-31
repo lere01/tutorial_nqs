@@ -1,5 +1,5 @@
 import streamlit as st
-from models import get_model
+from rnn_model.models import get_model
 from streamlit_extras.switch_page_button import switch_page
 
 st.set_page_config(
