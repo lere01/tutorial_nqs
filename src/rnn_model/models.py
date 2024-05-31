@@ -1,9 +1,9 @@
 # src/models.py
 
 import flax.linen as nn
-from definitions import ModelType, ModelConfigType, RNNModelProtocol, TransformerModelProtocol, RNNConfigType, TransformerConfigType, QuantumModelProtocol
-from attention import EncoderBlock
-from errors import ModelTypeError
+from rnn_model.definitions import ModelType, ModelConfigType, RNNModelProtocol, TransformerModelProtocol, RNNConfigType, TransformerConfigType, QuantumModelProtocol
+from rnn_model.attention import EncoderBlock
+from rnn_model.errors import ModelTypeError
 
 
 

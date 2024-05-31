@@ -1,8 +1,8 @@
 from typing import List, Tuple, Union
 from abc import ABC, abstractmethod
-from helpers import get_all_interactions_jax
+from rnn_model.helpers import get_all_interactions_jax
 from dataclasses import dataclass
-from definitions import VMCConfig
+from rnn_model.definitions import VMCConfig
 import jax.numpy as jnp
 from jax import nn as jnn
 from jax import random, jit, lax, value_and_grad
