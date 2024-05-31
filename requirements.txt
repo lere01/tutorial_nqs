@@ -10,4 +10,5 @@ pandas
 pydantic
 streamlit
 streamlit-code-editor
+streamlit-extras
 streamlit-pydantic

@@ -1,11 +1,15 @@
 import streamlit as st
 from models import get_model
+from streamlit_extras.switch_page_button import switch_page
 
 st.set_page_config(
     page_title="Model Confirmation - NQS Tutorial",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+if "model_config" not in st.session_state or "model_type" not in st.session_state or "vmc_config" not in st.session_state:
+    switch_page("app")
 
 st.markdown('<link href="../static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
 st.title("Neural Quantum State")

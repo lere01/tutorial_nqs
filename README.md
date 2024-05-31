@@ -6,8 +6,9 @@ Inspiration (and some code) for this tutorial was drawn from
 
 - [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
 - [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
+- [Czischek et. al., 2022](https://arxiv.org/pdf/2203.04988)
 - [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
-- [Deep Learning Cookbook](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+- [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
 
 You can consult the links for further knowledge.
 

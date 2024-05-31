@@ -19,6 +19,14 @@ st.markdown(
         you to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational 
         monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms.
 
+        Inspiration (and some code) for this tutorial were drawn from 
+
+        - [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
+        - [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
+        - [Czischek et. al., 2022](https://arxiv.org/pdf/2203.04988)
+        - [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
+        - [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+
         ### Physics of the Problem
 
         Let us consider the physics of the problem.
@@ -45,6 +53,7 @@ st.markdown(
         
         Note that we set $\Omega = \delta = 1$ and $R_b = 7^{\frac{1}{2}}$. This is to put the system in the vicinity of transition between the ordered 
         and striated phase.
+
 
 
         ### A Bird's Eyeview of the Approach
@@ -74,8 +83,45 @@ if "vmc_config" not in st.session_state:
     st.session_state.vmc_config = None
 
 # Footer Navigation
+# Add vertical space
+for _ in range(5):
+    st.write("")
+
 _, _, _, _, _, _, _, col1 = st.columns(8)
 
 # go to home page if clicked
 with col1:
     st.page_link("pages/configuration.py", label="Get Started", icon=":material/arrow_forward:")
+
+
+footer="""<style>
+a:link , a:visited{
+color: blue;
+background-color: transparent;
+text-decoration: underline;
+}
+
+a:hover,  a:active {
+color: red;
+background-color: transparent;
+text-decoration: underline;
+}
+
+.footer {
+position: fixed;
+left: 0;
+bottom: 0;
+width: 100%;
+background-color: white;
+color: black;
+text-align: center;
+}
+</style>
+<div class="footer">
+<p><a style='display: block; text-align: center;' href="#" target="_blank">Neural Network Parameterization of Wave Functions</a></p>
+</div>
+"""
+# st.markdown(footer,unsafe_allow_html=True)
+
+
+

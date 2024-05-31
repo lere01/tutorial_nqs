@@ -114,7 +114,8 @@ def main():
         st.session_state.model_type = ModelType[model_type]
         st.session_state.model_config = model_config
 
-        vmc_config["num_hidden_units"] = 64
+        if model_type == ModelType.RNN.name:
+            vmc_config['num_hidden_units'] = model_config.num_hidden_units
         st.session_state.vmc_config = VMCConfig(
             **vmc_config
         )
