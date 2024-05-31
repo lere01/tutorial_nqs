@@ -1,10 +1,15 @@
 einops
+filelock
 flax
 jax
 jaxlib
+Jinja2
+MarkupSafe
 matplotlib
 ml-dtypes
 ml_collections
+mpmath
+networkx
 numpy
 pandas
 pydantic
@@ -12,3 +17,6 @@ streamlit
 streamlit-code-editor
 streamlit-extras
 streamlit-pydantic
+sympy
+torch
+typing_extensions
