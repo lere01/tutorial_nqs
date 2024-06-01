@@ -37,40 +37,40 @@ def helper(args):
         
 
 
-if "--help" in sys.argv:
-    print()
-    helper(sys.argv)
-else:
-    print(sys.argv[1:])
+# if "--help" in sys.argv:
+#     print()
+#     helper(sys.argv)
+# else:
+#     print(sys.argv[1:])
 
-    model,full_opt,opt_dict = build_model(sys.argv[1:])
-    train_opt=opt_dict["TRAIN"]
+#     model,full_opt,opt_dict = build_model(sys.argv[1:])
+#     train_opt=opt_dict["TRAIN"]
 
-    #Initialize optimizer
-    beta1=0.9;beta2=0.999
-    optimizer = torch.optim.Adam(
-	    model.parameters(), 
-    	lr=train_opt.lr, 
-    	betas=(beta1,beta2)
-    )
+#     #Initialize optimizer
+#     beta1=0.9;beta2=0.999
+#     optimizer = torch.optim.Adam(
+# 	    model.parameters(), 
+#     	lr=train_opt.lr, 
+#     	betas=(beta1,beta2)
+#     )
 
-    print(full_opt)
-    mydir=setup_dir(opt_dict)
-    orig_stdout = sys.stdout
+#     print(full_opt)
+#     mydir=setup_dir(opt_dict)
+#     orig_stdout = sys.stdout
 
-    full_opt.save(mydir+"\\settings.json")
+#     full_opt.save(mydir+"\\settings.json")
 
-    f = open(mydir+'\\output.txt', 'w')
-    sys.stdout = f
-    try:
-        reg_train(opt_dict,(model,optimizer),printf=True,mydir=mydir)
-    except Exception as e:
-        print(e)
-        sys.stdout = orig_stdout
-        f.close()
-        1/0
-    sys.stdout = orig_stdout
-    f.close()
+#     f = open(mydir+'\\output.txt', 'w')
+#     sys.stdout = f
+#     try:
+#         reg_train(opt_dict,(model,optimizer),printf=True,mydir=mydir)
+#     except Exception as e:
+#         print(e)
+#         sys.stdout = orig_stdout
+#         f.close()
+#         1/0
+#     sys.stdout = orig_stdout
+#     f.close()
 
 def run(args):
     model,full_opt,opt_dict = build_model(args)

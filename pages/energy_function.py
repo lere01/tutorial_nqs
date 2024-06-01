@@ -39,13 +39,19 @@ st.title("Energy Function")
 
 # Provide a code editor for the user to edit the code
 st.markdown(
-    """
+    r"""
     ### Compute the Local Energy
     Are you ready for some tasks? Replace all the `CHANGE_ME` in the code below with the appropriate code to compute the local energy. When you 
     are done, click the `Run Code` button or press `Ctrl + Enter` (`command + return` for Mac) to run the code.
 
     - :red[**WARNING**]: Only change the places where you find `CHANGE_ME`. Changing any other part of the code may result in an error.
     - :blue[**HINT**]: Remember that `delta` and `Omega` are the detuning and Rabi frequency respectively. They play crucial roles in the computation of the local energy.
+
+    $$
+        \begin{equation}
+            \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
+        \end{equation} 
+    $$
     """
 )
 
