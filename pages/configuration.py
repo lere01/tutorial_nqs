@@ -1,23 +1,30 @@
 import os
 import streamlit as st
-from startup import prepare_file_system
+# from startup import prepare_file_system
 # from rnn_model.definitions.enums import ModelType
-from rnn_model.definitions.configs import VMCConfig, TransformerConfig, VMCModel
-from typing import NamedTuple, get_type_hints, List, Dict
+# from src.rnn_model.definitions.configs import VMCConfig, TransformerConfig, VMCModel
+# from typing import NamedTuple, get_type_hints, List, Dict
 from streamlit_extras.add_vertical_space import add_vertical_space
-
-from helpers import PatchedTransformerConfig, LargePatchedTransformerConfig, RNNConfig, get_widget_group, ModelType, RydbergConfig, TrainConfig
+from src.helpers import PatchedTransformerConfig, LargePatchedTransformerConfig, RNNConfig, VMCConfig
+from src.helpers import get_widget_group, ModelType, RydbergConfig, TrainConfig
+from src.helpers import save_rnn, save_ptf, save_lptf
+from src.helpers import RNNConfigDescription, PatchedTransformerConfigDescription, LargePatchedTransformerConfigDescription
+from src.helpers import RydbergConfigDescription, TrainConfigDescription, VMCConfigDescription
 
 
 
 def main():
+    # Set the page configuration
     st.set_page_config(
     page_title="Configuration - NQS Tutorial",
     page_icon="",
     layout="wide",
     )
 
+    # Initialize Session State
+    st.session_state.configuration_saved = False
 
+    # Page Styling
     st.markdown('<link href="../static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
     st.title("Configuration Parameters")
 
@@ -30,7 +37,6 @@ def main():
 
 
     # Body Section
-
     st.markdown(
         """
             In this tutorial, we will be trying three model architectures - Recurrent Neural Network (see this [paper](https://arxiv.org/pdf/2203.04988)) and, 
@@ -75,7 +81,7 @@ def main():
     else:
         st.write(""" ### Large Patched Transformer Configuration """)
 
-    left_col, right_col = st.columns([1, 3])
+    left_col, right_col = st.columns([2, 5])
     with left_col:
         st.image(get_image_path(model_type), caption=f"{model_type} Architecture", use_column_width=True)
     with right_col:
@@ -88,30 +94,54 @@ def main():
 
             with tab2:
                 exclude_list = ["nx", "output_dim", "sequence_length"]
-                vmc_config = get_widget_group(VMCConfig, exclude_list)
+                vmc_config = get_widget_group(VMCConfig, VMCConfigDescription, exclude_list)
         
         else:
             tab1, tab2, tab3 = st.tabs(["Model Configuration", "Training Configuration", "Rydberg Configuration"])
             if model_type == ModelType.PatchedTRANSFORMER.name:
                 with tab1:
-                    ptf_config = get_widget_group(PatchedTransformerConfig, [])
+                    ptf_config = get_widget_group(
+                        PatchedTransformerConfig,
+                        PatchedTransformerConfigDescription, 
+                        []
+                    )
                     model_config = PatchedTransformerConfig(**ptf_config)
                 with tab2:
-                    trainconfig = get_widget_group(TrainConfig, [])
+                    trainconfig = get_widget_group(
+                        TrainConfig,
+                        TrainConfigDescription, 
+                        []
+                    )
                     train_config = TrainConfig(**trainconfig)
                 with tab3:
-                    rydbergconfig = get_widget_group(RydbergConfig, [])
+                    rydbergconfig = get_widget_group(
+                        RydbergConfig,
+                        RydbergConfigDescription, 
+                        []
+                    )
                     rydberg_config = RydbergConfig(**rydbergconfig)
 
             elif model_type == ModelType.LargePatchedTRANSFORMER.name:
                 with tab1:
-                    lptf_config = get_widget_group(LargePatchedTransformerConfig, [])
+                    lptf_config = get_widget_group(
+                        LargePatchedTransformerConfig,
+                        LargePatchedTransformerConfigDescription, 
+                        []
+                    )
                     model_config = LargePatchedTransformerConfig(**lptf_config)
                 with tab2:
-                    trainconfig = get_widget_group(TrainConfig, [])
+                    trainconfig = get_widget_group(
+                        TrainConfig,
+                        TrainConfigDescription, 
+                        []
+                    )
                     train_config = TrainConfig(**trainconfig)
                 with tab3:
-                    rydbergconfig = get_widget_group(RydbergConfig, [])
+                    rydbergconfig = get_widget_group(
+                        RydbergConfig,
+                        RydbergConfigDescription, 
+                        []
+                    )
                     rydberg_config = RydbergConfig(**rydbergconfig)
             
     add_vertical_space(3)
@@ -125,12 +155,18 @@ def main():
             st.session_state.vmc_config = VMCConfig(
                 **vmc_config
             )
+            save_rnn(model_config, st.session_state.vmc_config)
 
-        else:
+        elif model_type == ModelType.PatchedTRANSFORMER.name:
             st.session_state.train_config = train_config
             st.session_state.rydberg_config = rydberg_config
+            save_ptf(model_config, train_config, rydberg_config)
+        
+        elif model_type == ModelType.LargePatchedTRANSFORMER.name:
+            st.session_state.train_config = train_config
+            st.session_state.rydberg_config = rydberg_config
+            save_lptf(model_config, train_config, rydberg_config)
             
-
 
         st.write("Configuration Saved Successfully! You can now proceed to the next step.")
         st.session_state.configuration_saved = True

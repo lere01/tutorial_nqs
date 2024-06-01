@@ -8,8 +8,8 @@ from code_editor import code_editor
 from streamlit_extras.let_it_rain import rain
 from streamlit_extras.switch_page_button import switch_page
 
-
-from rnn_model.vmc import VMC
+from src.helpers import ModelType, run_tf_model
+from src.rnn_model.vmc import VMC
 from jax import lax, random
 import jax.numpy as jnp
 from typing import List
@@ -168,13 +168,20 @@ if completed_code["type"] == "submit":
             falling_speed=5,
             animation_length="5s",
         )
-        try:
-            with st.spinner("Your model is training..."):
-                exec(completed_code["text"], run_model_globals)
+        if st.session_state.model_type.name == ModelType.RNN.name:
+            try:
+                with st.spinner("Your RNN model is training..."):
+                    exec(completed_code["text"], run_model_globals)
 
-            energy_plot(st.session_state.densities)
-        except Exception as e:
-            st.error(f"Error executing code: {e}")
+                energy_plot(st.session_state.densities)
+            except Exception as e:
+                st.error(f"Error executing code: {e}")
+        else:
+            try:
+                with st.spinner("Your Transformer model is training..."):
+                    run_tf_model(st.session_state.model, st.session_state.full_opt, st.session_state.opt_dict)
+            except Exception as e:
+                st.error(f"Error executing code: {e}")
 
 
 # Footer Navigation
