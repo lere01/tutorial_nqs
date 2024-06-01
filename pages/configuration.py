@@ -1,43 +1,14 @@
 import os
 import streamlit as st
 from startup import prepare_file_system
-from rnn_model.definitions.enums import ModelType
-from rnn_model.definitions.configs import RNNConfig, VMCConfig, TransformerConfig, VMCModel
+# from rnn_model.definitions.enums import ModelType
+from rnn_model.definitions.configs import VMCConfig, TransformerConfig, VMCModel
 from typing import NamedTuple, get_type_hints, List, Dict
-# import streamlit_pydantic as sp
+from streamlit_extras.add_vertical_space import add_vertical_space
 
-def get_widget(description, field_type, default_value, disabled=False):
-        if field_type == int:
-            return st.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
-        elif field_type == float:
-            return st.number_input(description, min_value=0.00005, value=default_value, step=0.001, disabled=disabled)
+from helpers import PatchedTransformerConfig, LargePatchedTransformerConfig, RNNConfig, get_widget_group, ModelType, RydbergConfig, TrainConfig
 
-def get_sidebar_widget(description, field_type, default_value, disabled=False):
-        if description != "Num Hidden Units":
-            if field_type == int:
-                return st.sidebar.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
-            elif field_type == float:
-                return st.sidebar.number_input(description, min_value=0.00005, value=default_value, step=0.001, disabled=disabled)
-    
 
-def get_widget_group(config: NamedTuple, exclude_list: List[str], sidebar=False) -> Dict:  
-    widget_group = {}
-    field_defaults = config._field_defaults
-    
-    if sidebar:
-        for field_name, field_type in get_type_hints(config).items():
-            default_value = field_defaults.get(field_name, None)
-            description = field_name.replace("_", " ").title()
-            
-            widget_group[field_name] = get_sidebar_widget(description, field_type, default_value) if field_name not in exclude_list else get_sidebar_widget(description, field_type, default_value, True)
-    else:
-        for field_name, field_type in get_type_hints(config).items():
-            default_value = field_defaults.get(field_name, None)
-            description = field_name.replace("_", " ").title()
-            
-            widget_group[field_name] = get_widget(description, field_type, default_value) if field_name not in exclude_list else get_widget(description, field_type, default_value, True)
-    
-    return widget_group
 
 def main():
     st.set_page_config(
@@ -57,16 +28,13 @@ def main():
         """
     )
 
+
     # Body Section
-    cwd = os.getcwd()
-    image_path = os.path.join(cwd, "pages", "images", "nn_models.png")
-    st.image(image_path)
 
     st.markdown(
         """
-            The above image was taken from [Sprague and Czischek](https://www.nature.com/articles/s42005-024-01584-y/figures/1). It shows some of the neural network 
-            architectures used by Physicist across different areas. However, we will only be dealing with only two of them in this tutorial - Recurrent Neural Network (RNN) and, 
-            Transformer (self-attention). For those who might be interested in the detail, we will be using the Gated Recurrent Unit (GRU) flavour of the RNN. 
+            In this tutorial, we will be trying three model architectures - Recurrent Neural Network (see this [paper](https://arxiv.org/pdf/2203.04988)) and, 
+            Patched Transformer and Large Patched Transformer (see this [paper](https://www.nature.com/articles/s42005-024-01584-y)). For those who might be interested in the detail, we will be using the Gated Recurrent Unit (GRU) flavour of the RNN. 
             On this page, you will be able to do three things:
             
             - Select which of the two models you would like to use
@@ -83,43 +51,85 @@ def main():
         """
     )
 
-    # sp.pydantic_form(key="vmcconfig", model=VMCModel)
-
+    add_vertical_space(3)
+  
     # Model selection
     options=[(model.name) for model in ModelType]
     model_type = st.sidebar.selectbox("Choose Model", options)
-    
 
-    # VMC Configuration
-    exclude_list = ["nx", "output_dim", "sequence_length"]
-    vmc_config = get_widget_group(VMCConfig, exclude_list, sidebar=True)
+    cwd = os.getcwd()
+    img_dir = os.path.join(cwd, "pages", "images")
 
+    def get_image_path(model_name):
+        img_dict = {
+            "RNN": "rnn.png",
+            "PatchedTRANSFORMER": "ptf.png",
+            "LargePatchedTRANSFORMER": "lptf.png",
+        }
+        return os.path.join(img_dir, f"{img_dict[model_name]}")
 
-    
     if model_type == ModelType.RNN.name:
         st.write(""" ### RNN Configuration """)
-        output_dim = st.number_input("Output Dimension (Only 2 is supported)", min_value=2, max_value=2, value=2, disabled=True)
-        num_hidden_units = st.number_input("Number of Hidden Units", min_value=4, max_value=64, value=64, step=4)
+    elif model_type == ModelType.PatchedTRANSFORMER.name:
+        st.write(""" ### Patched Transformer Configuration """)
+    else:
+        st.write(""" ### Large Patched Transformer Configuration """)
+
+    left_col, right_col = st.columns([1, 3])
+    with left_col:
+        st.image(get_image_path(model_type), caption=f"{model_type} Architecture", use_column_width=True)
+    with right_col:
+        if model_type == ModelType.RNN.name:
+            tab1, tab2 = st.tabs(["Model Configuration", "VMC Configuration"])
+            with tab1:
+                output_dim = st.number_input("Output Dimension (Only 2 is supported)", min_value=2, max_value=2, value=2, disabled=True)
+                num_hidden_units = st.number_input("Number of Hidden Units", min_value=4, max_value=64, value=64, step=4)
+                model_config = RNNConfig(output_dim, num_hidden_units)
+
+            with tab2:
+                exclude_list = ["nx", "output_dim", "sequence_length"]
+                vmc_config = get_widget_group(VMCConfig, exclude_list)
+        
+        else:
+            tab1, tab2, tab3 = st.tabs(["Model Configuration", "Training Configuration", "Rydberg Configuration"])
+            if model_type == ModelType.PatchedTRANSFORMER.name:
+                with tab1:
+                    ptf_config = get_widget_group(PatchedTransformerConfig, [])
+                    model_config = PatchedTransformerConfig(**ptf_config)
+                with tab2:
+                    trainconfig = get_widget_group(TrainConfig, [])
+                    train_config = TrainConfig(**trainconfig)
+                with tab3:
+                    rydbergconfig = get_widget_group(RydbergConfig, [])
+                    rydberg_config = RydbergConfig(**rydbergconfig)
+
+            elif model_type == ModelType.LargePatchedTRANSFORMER.name:
+                with tab1:
+                    lptf_config = get_widget_group(LargePatchedTransformerConfig, [])
+                    model_config = LargePatchedTransformerConfig(**lptf_config)
+                with tab2:
+                    trainconfig = get_widget_group(TrainConfig, [])
+                    train_config = TrainConfig(**trainconfig)
+                with tab3:
+                    rydbergconfig = get_widget_group(RydbergConfig, [])
+                    rydberg_config = RydbergConfig(**rydbergconfig)
             
-        model_config = RNNConfig(output_dim, num_hidden_units)
-        
-
-    elif model_type == ModelType.TRANSFORMER.name:
-        st.write(""" ### Transformer Configuration """)
-        transformer_config = get_widget_group(TransformerConfig, [])
-        model_config = TransformerConfig(**transformer_config)
-        
-
+    add_vertical_space(3)
     if st.button("Save Configuration"):
         st.session_state.model_type = ModelType[model_type]
         st.session_state.model_config = model_config
 
         if model_type == ModelType.RNN.name:
             vmc_config['num_hidden_units'] = model_config.num_hidden_units
-        st.session_state.vmc_config = VMCConfig(
-            **vmc_config
-        )
         
+            st.session_state.vmc_config = VMCConfig(
+                **vmc_config
+            )
+
+        else:
+            st.session_state.train_config = train_config
+            st.session_state.rydberg_config = rydberg_config
+            
 
 
         st.write("Configuration Saved Successfully! You can now proceed to the next step.")

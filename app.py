@@ -1,15 +1,20 @@
 import startup ## this has to be the first import
+import os
 import streamlit as st
 
 
 st.set_page_config(
     page_title="Welcome - NQS Tutorial",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded",
 )
 
 st.markdown('<link href="static/css/styles.css" rel="stylesheet">', unsafe_allow_html=True)
 st.title("Neural Networks for Wave Functions Parameterization")
+
+cwd = os.getcwd()
+image_path = os.path.join(cwd, "static", "nn_models.png")
+st.image(image_path)
 
 # Body Section
 st.markdown(
@@ -19,20 +24,24 @@ st.markdown(
         you to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational 
         monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms.
 
-        Inspiration (and some code) for this tutorial were drawn from 
+        ## Acknowledgements
 
-        - [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
-        - [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
-        - [Czischek et. al., 2022](https://arxiv.org/pdf/2203.04988)
-        - [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
-        - [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+        - The above image and other images in other pages were taken from [Sprague and Czischek](https://www.nature.com/articles/s42005-024-01584-y/figures/1). 
+        - The following resources were consulted for this tutorial
+            - [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
+            - [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
+            - [Czischek et. al., 2022](https://arxiv.org/pdf/2203.04988)
+            - [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
+            - [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+
+        - With permission, code in the following repository was used for patched transformer and large patched transformer models:
+            - https://github.com/APRIQuOt/VMC_with_LPTF
 
         ### Physics of the Problem
 
         Let us consider the physics of the problem.
 
         - We are looking at a 2D lattice of Rydberg atoms
-        - We will be using the Ising Model
         - We are assuming all-to-all interaction among lattice sites
         - The Hamiltonian is as follows
 

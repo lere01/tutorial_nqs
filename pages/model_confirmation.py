@@ -35,8 +35,8 @@ if st.button("Confirm Model"):
     if config_not_set:
         st.write("Oops! No available configuration. Did you forget to save your configuration on the previous page?")
     else:
-        model = get_model(model_type)(*model_config)
-        st.session_state.model = model
+        # model = get_model(model_type)(*model_config)
+        # st.session_state.model = model
         
         st.markdown(f"""
             Welldone! You are ready to use {model_type}. Remember that you can 
