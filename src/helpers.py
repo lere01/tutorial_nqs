@@ -9,7 +9,7 @@ from src.tf_models.model_builder import *
 class ModelType(Enum):
     RNN = 1
     PatchedTRANSFORMER = 2
-    LargePatchedTRANSFORMER = 3
+    # LargePatchedTRANSFORMER = 3
 
 
 class RNNConfig(NamedTuple):
@@ -63,10 +63,10 @@ VMCConfigDescription = {
 """ 
 class PatchedTransformerConfig(NamedTuple):
     L: int = 64
-    Nh: int = 128
+    # Nh: int = 128
     patch: str = "2x2"
-    dropout: float = 0.0
-    num_layers: int = 2
+    # dropout: float = 0.0
+    # num_layers: int = 2
     nhead: int = 8
 
 PatchedTransformerConfigDescription = {
@@ -103,7 +103,7 @@ class LargePatchedTransformerConfig(NamedTuple):
     L: int = 64
     Nh: int = 128
     patch: str = "2x2"
-    dropout: float = 0.1
+    dropout: float = 0.0
     num_layers: int = 2
     nhead: int = 8
 
@@ -154,16 +154,19 @@ RydbergConfigDescription = {
         sub_directory (str)  -- String to add to the end of the output directory (inside a subfolder). 
 """
 class TrainConfig(NamedTuple):
+    L: int = 64
     Q: int = 1
-    K: int = 256
-    B: int = 256
+    K: int = 1024
+    B: int = 1024
     NLOOPS: int = 16
-    steps: int = 5000
-    lr: float = 0.005
+    steps: int = 50000
+    lr: float = 0.0005
     seed: int = 1234
-    sub_directory: str = "nqs_tf"
+    dir: str = "TF"
+    sub_directory: str = "2x2"
 
 TrainConfigDescription = {
+    "L": "L - Total lattice size (8x8 would be L=64)",	
     "Q": "Q - Number of minibatches per batch",
     "K": "K - Size of each minibatch",
     "B": "B - Total batch size (should be Q*K)",
@@ -171,6 +174,7 @@ TrainConfigDescription = {
     "steps": "Steps - Number of training steps",
     "lr": "Learning rate",
     "seed": "Seed - Random seed for the run",
+    "dir": "Directory - Directory to save the output",
     "sub_directory": "Sub Directory - String to add to the end of the output directory (inside a subfolder)"
 }
 
@@ -310,7 +314,7 @@ def run_tf_model(model, full_opt, opt_dict):
     mydir=setup_dir(opt_dict)
     orig_stdout = sys.stdout
 
-    # full_opt.save(mydir+"\\settings.json")
+    full_opt.save(mydir+"\\settings.json")
     f = open(mydir+'\\output.txt', 'w')
     sys.stdout = f
     try:
