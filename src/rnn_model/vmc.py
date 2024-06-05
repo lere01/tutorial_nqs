@@ -142,15 +142,51 @@ class VMC(ABC):
         return energies
     
     
-    @abstractmethod
-    def local_energy(self, samples: List[Union[float, Tuple[float, ...]]], params, model, log_psi) -> List[float]:
-        """
-        Method to compute the energy function for given samples.
+    # @abstractmethod
+    # def local_energy(self, samples: List[Union[float, Tuple[float, ...]]], params, model, log_psi) -> List[float]:
+    #     """
+    #     Method to compute the energy function for given samples.
         
-        Parameters:
-        - samples (List[Union[float, Tuple[float, ...]]]): List of samples.
+    #     Parameters:
+    #     - samples (List[Union[float, Tuple[float, ...]]]): List of samples.
         
-        Returns:
-        - float: Energy function value.
-        """
-        raise NotImplementedError("Energy function not implemented")
+    #     Returns:
+    #     - float: Energy function value.
+    #     """
+    #     raise NotImplementedError("Energy function not implemented")
+    
+    
+    def local_energy(self, samples, params, model, log_psi) -> List[float]:
+        output = jnp.zeros((samples.shape[0]), dtype=jnp.float32)
+
+        def step_fn_chemical(i, state):
+            s, output = state
+            output += - self.delta * s[:, i]
+            return s, output
+
+        def step_fn_intr(i, state):
+            samples, pairs, multipliers, output = state
+            output += multipliers[i] * samples[:, pairs[i, 0]] * samples[:, pairs[i, 1]]
+            return samples, pairs, multipliers, output
+
+
+        def step_fn_transverse(i, state):
+            s, output = state
+            flipped_state = s.at[:, i].set(1 - s[:, i])
+            flipped_logpsi = self.logpsi(flipped_state, params, model)
+            output += - 0.5 * self.Omega * jnp.exp(flipped_logpsi - log_psi)
+            return s, output
+
+
+        # Interaction Term
+        _, _, _, interaction_term = lax.fori_loop(0, 120, step_fn_intr, (samples, self.pairs, self.multipliers, output))
+        # Off Diagonal Term
+        _, transverse_field = lax.fori_loop(0, 16, step_fn_transverse, (samples, output))
+        # _, transverse_field = lax.fori_loop(0, 16, step_fn_transverse, (samples, output))
+        # Occupancy Term
+        _, chemical_potential = lax.fori_loop(0, 16, step_fn_chemical, (samples, output))
+
+        # Total energy
+        loc_e = transverse_field + chemical_potential + interaction_term
+
+        return loc_e

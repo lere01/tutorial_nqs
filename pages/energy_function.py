@@ -1,6 +1,8 @@
 import io
 import sys
 import os
+import ast
+import copy
 import json
 import streamlit as st
 import textwrap
@@ -8,10 +10,11 @@ from code_editor import code_editor
 from streamlit_extras.let_it_rain import rain
 from streamlit_extras.switch_page_button import switch_page
 
-from src.helpers import ModelType, run_tf_model
+from src.helpers import ModelType, run_tf_model, state_flipper, fake_logpsi, check_flip_state, check_transverse_fn, extract_loc_e, LineCollector, meets_cond
 from src.rnn_model.vmc import VMC
 from jax import lax, random
 import jax.numpy as jnp
+import numpy as np
 from typing import List
 import matplotlib.pyplot as plt
 
@@ -41,17 +44,24 @@ st.title("Energy Function")
 st.markdown(
     r"""
     ### Compute the Local Energy
-    Are you ready for some tasks? Replace all the `CHANGE_ME` in the code below with the appropriate code to compute the local energy. When you 
-    are done, click the `Run Code` button or press `Ctrl + Enter` (`command + return` for Mac) to run the code.
+    Are you ready for some tasks? 
 
-    - :red[**WARNING**]: Only change the places where you find `CHANGE_ME`. Changing any other part of the code may result in an error.
-    - :blue[**HINT**]: Remember that `delta` and `Omega` are the detuning and Rabi frequency respectively. They play crucial roles in the computation of the local energy.
+    - Replace CHANGE_ME in function `step_fn_chemical`. 
+    - Complete the implementation of the `flip_state` function.
+    - Complete the implementation of the `step_fn_transverse` function.
+    - Complete the expression for `loc_e`
+    
+    When you are done, click the `Run Code` button or press `Ctrl + Enter` (`command + return` for Mac) to run the code. Use the Hamiltonian 
+    shown below as guide
 
     $$
         \begin{equation}
             \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
         \end{equation} 
     $$
+
+    - :red[**WARNING**]: Only change the places where you find `CHANGE_ME`. Changing any other part of the code may result in an error.
+    - :blue[**HINT**]: Remember that `delta` and `Omega` are the detuning and Rabi frequency respectively. They play crucial roles in the computation of the local energy.
     """
 )
 
@@ -80,15 +90,21 @@ run_model_globals = {
     "model": st.session_state.model,
     "VMC": VMC,
     "jnp": jnp,
+    "np": np,
     "lax": lax,
     "List": List,
     "rng_key": random.PRNGKey(1234),
     "st": st,
     "io": io,
     "sys": sys,
+    "copy": copy,
     "delta": 1.0,
     "Omega": 1.0,
     "state": st.session_state,
+    "params": .00005,
+    "model": .00007,
+    "get_logpsi": fake_logpsi,
+    "log_psi": .00002,
 }
 
 # Display the code editor
@@ -115,16 +131,24 @@ def energy_plot(densities):
 
 
 if completed_code["type"] == "submit":
+    tree = ast.parse(completed_code["text"], type_comments=True, mode="exec")
+    tree_code = compile(tree, "tempp", mode = "exec")
+    exec(tree_code, run_model_globals)
+
+    
     with st.spinner("Checking your solution..."):
         # initialize task statuses
         todo_1_correct = False
         todo_2_correct = False
         todo_3_correct = False
+        todo_4_correct = False
 
         # extract the code from the code editor
         code = completed_code["text"]
         code_lines = code.strip().split('\n')
 
+
+        # Step_fn_chemical
         # Check if the user has completed the first todo
         todo_1 = code_lines[10].strip().split()
 
@@ -134,50 +158,86 @@ if completed_code["type"] == "submit":
             todo_1_correct = True
             st.write("Well done! You have successfully completed the todo 1.")
 
-        # Check if the user has completed the second todo
-        todo_2 = code_lines[25].strip().split()
+        # Flip_state function
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == "flip_state":
+                func_def = compile(ast.Module(body=[node], type_ignores=[]), '', 'exec')
+                exec(func_def, run_model_globals)
+            
+            if isinstance(node, ast.FunctionDef) and node.name == "step_fn_transverse":
+                func_def = compile(ast.Module(body=[node], type_ignores=[]), '', 'exec')
+                exec(func_def, run_model_globals)
+            
+            
 
-        if todo_2[5] != 'Omega':
-            st.write("You might want to check on ToDo_2")
-        else:
+        if check_flip_state(run_model_globals["flip_state"]):
             todo_2_correct = True
             st.write("Well done! You have successfully completed the todo 2.")
-
-        # Check if the user has completed the third todo
-        todo_3 = code_lines[39].strip().split()
-        
-        todo_terms = set(todo_3)
-        # condition one: each of ['interaction_term', 'transverse_field', 'chemical_potential', 'loc_e'] must be present in the code
-        condition_one = all(term in todo_terms for term in ['interaction_term', 'transverse_field', 'chemical_potential', 'loc_e'])
-
-        # condition two: '=' must be the second item in todo_3, and '+' must be the fourth and sixth items
-        condition_two = todo_3[1] == '=' and all(todo_3[i] == '+' for i in (3, 5))
-
-        if not condition_one or not condition_two:
-            st.write("You might want to check on ToDo_3")
         else:
+            st.write("You might want to check on ToDo_2")
+
+
+        # Step_fn_inverse
+        # Check if the user has completed the third todo
+        it_works = check_transverse_fn(run_model_globals["step_fn_transverse"])
+        if it_works:
             todo_3_correct = True
             st.write("Well done! You have successfully completed the todo 3.")
+        else:
+            st.write("You might want to check on ToDo_3")
+
+
+        
+        # Check loc_e implementation
+        collector = LineCollector()
+        collector.visit(tree)
+        target_line = code.splitlines()[collector.target_line - 1]
+        loc_e_done = meets_cond(target_line)
+
+        if loc_e_done is True:
+            todo_4_correct = True
+            st.write("Well done! You have successfully completed the todo 4.")
+        else:
+            st.write("You might want to check on ToDo_4")
+
 
         # Display checkboxes
         st.subheader("Checklist")
         st.checkbox("TODO_1: step_fn_chemical correctly implemented", value=todo_1_correct, disabled=True)
-        st.checkbox("TODO_2: step_fn_transverse correctly implemented", value=todo_2_correct, disabled=True)
-        st.checkbox("TODO_3: Total energy computation correctly implemented", value=todo_3_correct, disabled=True)
+        st.checkbox("TODO_2: flip_state correctly implemented", value=todo_2_correct, disabled=True)
+        st.checkbox("TODO_3: step_fn_transverse correctly implemented", value=todo_3_correct, disabled=True)
+        st.checkbox("TODO_4: Total energy computation correctly implemented", value=todo_4_correct, disabled=True)
 
 
     # Execute the code
-    if all([todo_1_correct, todo_2_correct, todo_3_correct]):
+    if all([todo_1_correct, todo_2_correct, todo_3_correct, todo_4_correct]):
         rain(
             emoji="🎈",
             font_size=54,
             falling_speed=5,
-            animation_length="5s",
+            animation_length="10s",
         )
         if st.session_state.model_type.name == ModelType.RNN.name:
             try:
                 with st.spinner("Your RNN model is training..."):
-                    exec(completed_code["text"], run_model_globals)
+                    # exec(completed_code["text"], run_model_globals)
+                    my_vmc = VMC(
+                    nsamples = st.session_state.vmc_config.n_samples,
+                    n= st.session_state.vmc_config.nx,
+                    learning_rate = st.session_state.vmc_config.learning_rate,
+                    num_epochs=st.session_state.vmc_config.num_epochs,
+                    output_dim=st.session_state.vmc_config.output_dim,
+                    sequence_length=st.session_state.vmc_config.sequence_length,
+                    num_hidden_units=st.session_state.vmc_config.num_hidden_units
+                    )
+
+                    # Initialize the model
+                    dummy_input = jnp.zeros((st.session_state.vmc_config.n_samples, st.session_state.vmc_config.sequence_length, st.session_state.vmc_config.output_dim))
+                    params = st.session_state.model.init(random.PRNGKey(1234), dummy_input)
+                    e_den = my_vmc.train(random.PRNGKey(123), params, st.session_state.model)
+
+                    st.session_state.densities = [(i.mean() / st.session_state.vmc_config.sequence_length).item() for i in e_den]
+                    st.session_state.training_completed = True
 
                 energy_plot(st.session_state.densities)
             except Exception as e:

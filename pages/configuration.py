@@ -5,10 +5,10 @@ import streamlit as st
 # from src.rnn_model.definitions.configs import VMCConfig, TransformerConfig, VMCModel
 # from typing import NamedTuple, get_type_hints, List, Dict
 from streamlit_extras.add_vertical_space import add_vertical_space
-from src.helpers import PatchedTransformerConfig, LargePatchedTransformerConfig, RNNConfig, VMCConfig
+from src.helpers import TransformerConfig, RNNConfig, VMCConfig
 from src.helpers import get_widget_group, ModelType, RydbergConfig, TrainConfig
 from src.helpers import save_rnn, save_ptf, save_lptf
-from src.helpers import RNNConfigDescription, PatchedTransformerConfigDescription, LargePatchedTransformerConfigDescription
+from src.helpers import TransformerConfigDescription
 from src.helpers import RydbergConfigDescription, TrainConfigDescription, VMCConfigDescription
 
 
@@ -69,17 +69,14 @@ def main():
     def get_image_path(model_name):
         img_dict = {
             "RNN": "rnn.png",
-            "PatchedTRANSFORMER": "ptf.png",
-            "LargePatchedTRANSFORMER": "lptf.png",
+            "Transformer": "tf.png",
         }
         return os.path.join(img_dir, f"{img_dict[model_name]}")
 
     if model_type == ModelType.RNN.name:
         st.write(""" ### RNN Configuration """)
-    elif model_type == ModelType.PatchedTRANSFORMER.name:
-        st.write(""" ### Patched Transformer Configuration """)
-    else:
-        st.write(""" ### Large Patched Transformer Configuration """)
+    elif model_type == ModelType.Transformer.name:
+        st.write(""" ### Transformer Configuration """)
 
     left_col, right_col = st.columns([2, 5])
     with left_col:
@@ -98,51 +95,29 @@ def main():
         
         else:
             tab1, tab2, tab3 = st.tabs(["Model Configuration", "Training Configuration", "Rydberg Configuration"])
-            if model_type == ModelType.PatchedTRANSFORMER.name:
-                with tab1:
-                    ptf_config = get_widget_group(
-                        PatchedTransformerConfig,
-                        PatchedTransformerConfigDescription, 
-                        []
-                    )
-                    model_config = PatchedTransformerConfig(**ptf_config)
-                with tab2:
-                    trainconfig = get_widget_group(
-                        TrainConfig,
-                        TrainConfigDescription, 
-                        []
-                    )
-                    train_config = TrainConfig(**trainconfig)
-                with tab3:
-                    rydbergconfig = get_widget_group(
-                        RydbergConfig,
-                        RydbergConfigDescription, 
-                        []
-                    )
-                    rydberg_config = RydbergConfig(**rydbergconfig)
+            with tab1:
+                ptf_config = get_widget_group(
+                    TransformerConfig,
+                    TransformerConfigDescription, 
+                    []
+                )
+                model_config = TransformerConfig(**ptf_config)
+            with tab2:
+                trainconfig = get_widget_group(
+                    TrainConfig,
+                    TrainConfigDescription, 
+                    []
+                )
+                train_config = TrainConfig(**trainconfig)
+            with tab3:
+                rydbergconfig = get_widget_group(
+                    RydbergConfig,
+                    RydbergConfigDescription, 
+                    []
+                )
+                rydberg_config = RydbergConfig(**rydbergconfig)
 
-            elif model_type == ModelType.LargePatchedTRANSFORMER.name:
-                with tab1:
-                    lptf_config = get_widget_group(
-                        LargePatchedTransformerConfig,
-                        LargePatchedTransformerConfigDescription, 
-                        []
-                    )
-                    model_config = LargePatchedTransformerConfig(**lptf_config)
-                with tab2:
-                    trainconfig = get_widget_group(
-                        TrainConfig,
-                        TrainConfigDescription, 
-                        []
-                    )
-                    train_config = TrainConfig(**trainconfig)
-                with tab3:
-                    rydbergconfig = get_widget_group(
-                        RydbergConfig,
-                        RydbergConfigDescription, 
-                        []
-                    )
-                    rydberg_config = RydbergConfig(**rydbergconfig)
+
             
     add_vertical_space(3)
     if st.button("Save Configuration"):
@@ -157,15 +132,11 @@ def main():
             )
             save_rnn(model_config, st.session_state.vmc_config)
 
-        elif model_type == ModelType.PatchedTRANSFORMER.name:
+        else:
             st.session_state.train_config = train_config
             st.session_state.rydberg_config = rydberg_config
             save_ptf(model_config, train_config, rydberg_config)
         
-        elif model_type == ModelType.LargePatchedTRANSFORMER.name:
-            st.session_state.train_config = train_config
-            st.session_state.rydberg_config = rydberg_config
-            save_lptf(model_config, train_config, rydberg_config)
             
 
         st.write("Configuration Saved Successfully! You can now proceed to the next step.")

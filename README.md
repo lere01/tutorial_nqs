@@ -122,4 +122,4 @@ These steps will ensure that the virtual environment is created, dependencies ar
 
 ### Web Access
 
-If you do not want to go through the hastle of downloading/cloning the repo, you can access the web app [here](https://streamlit.io). But note that it may be slow to respond depending on whether the app has hibernated or not. Also, it may no longer be availabe for access after some time.
+If you do not want to go through the steps of downloading/cloning the repo, you can access the web app [here](https://nqs-tutorial.streamlit.app). But note that it may be slow to respond depending on whether the app has slept or not.

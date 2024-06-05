@@ -16,15 +16,23 @@ class MyVMC(VMC):
             samples, pairs, multipliers, output = state
             output += multipliers[i] * samples[:, pairs[i, 0]] * samples[:, pairs[i, 1]]
             return samples, pairs, multipliers, output
+        
+        #** TODO_2 **#
+        # Implement flip_state
+        # It is a function that takes a flip index and state (1D array of spin configuration), and returns the flipped_state
+        def flip_state(i: int, state: np.ndarray) -> np.ndarray:
+            flipped_state = copy.deepcopy(state)
+            return flipped_state
 
         # Compute the off-diagonal term
-        #** TODO_2: Somemething is missing here **#
-        def step_fn_transverse(i, state):
-            s, output = state
-            flipped_state = s.at[:, i].set(1 - s[:, i])
-            flipped_logpsi = self.logpsi(flipped_state, params, model)
-            output += - 0.5 * `CHANGE_ME` * jnp.exp(flipped_logpsi - log_psi) # Something about the Rabi frequency
-            return s, output
+        #** TODO_3: Use  your function, flip_state and the instance method, self.logpsi to complete this function**#
+        ## function get_logpsi takes (flipped_state, params, model) as arguments and returns the logpsi of the flipped state
+        def step_fn_transverse(i, holder):
+            state, output = holder
+            flipped_state = None
+            flipped_logpsi = None
+            output += - 0.5 * Omega * jnp.exp(flipped_logpsi - log_psi) # Something about the Rabi frequency
+            return state, output
 
         # Interaction Term
         _, _, _, interaction_term = lax.fori_loop(0, 120, step_fn_intr, (samples, self.pairs, self.multipliers, output))
@@ -36,28 +44,8 @@ class MyVMC(VMC):
         _, chemical_potential = lax.fori_loop(0, 16, step_fn_chemical, (samples, output))
 
         # Total energy
-        #** TODO_3: Somemething very wrong here **#
-        loc_e = `CHANGE_ME` + `CHANGE_ME` + `CHANGE_ME` # What should be the total energy?
+        #** TODO_4: Somemething very wrong here **#
+        loc_e = "" + "" + "" # What should be the total energy?
         
         return loc_e
 
-
-"""WARNING: DO NOT EDIT THIS PART OF THE CODE"""
-
-my_vmc = MyVMC(
-    nsamples=vmc_config.n_samples,
-    n=vmc_config.nx,
-    learning_rate=vmc_config.learning_rate,
-    num_epochs=vmc_config.num_epochs,
-    output_dim=vmc_config.output_dim,
-    sequence_length=vmc_config.sequence_length,
-    num_hidden_units=vmc_config.num_hidden_units
-)
-
-# Initialize the model
-dummy_input = jnp.zeros((vmc_config.n_samples, vmc_config.sequence_length, vmc_config.output_dim))
-params = model.init(rng_key, dummy_input)
-e_den = my_vmc.train(rng_key, params, model)
-
-state.densities = [(i.mean() / vmc_config.sequence_length).item() for i in e_den]
-state.training_completed = True

@@ -1,6 +1,9 @@
 import os
+import ast
+import copy
 import json
 import torch
+import numpy as np
 from enum import Enum
 import streamlit as st
 from typing import NamedTuple, get_type_hints, List, Dict, Union
@@ -8,8 +11,7 @@ from src.tf_models.model_builder import *
 
 class ModelType(Enum):
     RNN = 1
-    PatchedTRANSFORMER = 2
-    # LargePatchedTRANSFORMER = 3
+    Transformer = 2
 
 
 class RNNConfig(NamedTuple):
@@ -61,15 +63,15 @@ VMCConfigDescription = {
     
         repeat_pre (bool)    -- Repeat the precondition (input) instead of projecting it out to match the token size.
 """ 
-class PatchedTransformerConfig(NamedTuple):
+class TransformerConfig(NamedTuple):
     L: int = 64
     # Nh: int = 128
-    patch: str = "2x2"
+    patch: str = "1x1"
     # dropout: float = 0.0
-    # num_layers: int = 2
+    num_layers: int = 2
     nhead: int = 8
 
-PatchedTransformerConfigDescription = {
+TransformerConfigDescription = {
     "L": "L - The total number of atoms in your lattice",
     "Nh": "Nh - Transformer token size. Input patches are projected to match the token size",
     "patch": "Patch - Number of atoms input/predicted at once (patch size)",
@@ -163,7 +165,7 @@ class TrainConfig(NamedTuple):
     lr: float = 0.0005
     seed: int = 1234
     dir: str = "TF"
-    sub_directory: str = "2x2"
+    sub_directory: str = "1x1"
 
 TrainConfigDescription = {
     "L": "L - Total lattice size (8x8 would be L=64)",	
@@ -182,6 +184,9 @@ TrainConfigDescription = {
 # Create dictionary that maps the config to its description
 
 def get_widget(description, field_type, default_value, disabled=False):
+        # if isinstance(description, str) and description.split()[0] == "Patch":
+        #     pass
+        # else:
         if field_type == int:
             return st.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
         elif field_type == float:
@@ -212,11 +217,12 @@ def get_widget_group(config: NamedTuple, desc_dict, exclude_list: List[str], sid
             widget_group[field_name] = get_sidebar_widget(description, field_type, default_value) if field_name not in exclude_list else get_sidebar_widget(description, field_type, default_value, True)
     else:
         for field_name, field_type in get_type_hints(config).items():
-            default_value = field_defaults.get(field_name, None)
-            # description = field_name.replace("_", " ").title()
-            description = desc_dict[field_name]
-            
-            widget_group[field_name] = get_widget(description, field_type, default_value) if field_name not in exclude_list else get_widget(description, field_type, default_value, True)
+            if field_name != "patch":
+                default_value = field_defaults.get(field_name, None)
+                # description = field_name.replace("_", " ").title()
+                description = desc_dict[field_name]
+                
+                widget_group[field_name] = get_widget(description, field_type, default_value) if field_name not in exclude_list else get_widget(description, field_type, default_value, True)
     
     return widget_group
 
@@ -226,7 +232,7 @@ data_path = os.path.join(cwd, "src", "data")
 os.makedirs(data_path, exist_ok=True)
 
 rnn_path = os.path.join(data_path, "rnn_config.json")
-ptf_path = os.path.join(data_path, "ptf_config.json")
+tf_path = os.path.join(data_path, "tf_config.json")
 lptf_path = os.path.join(data_path, "lptf_config.json")
 
 def save_rnn(model_config: RNNConfig, vmc_config: VMCConfig, file_path: str = rnn_path):
@@ -235,7 +241,7 @@ def save_rnn(model_config: RNNConfig, vmc_config: VMCConfig, file_path: str = rn
         json.dump({"model_config": model_config._asdict(), "vmc_config": vmc_config._asdict()}, f, indent=4)
 
 
-def save_ptf(model_config: PatchedTransformerConfig, train_config: TrainConfig, rydberg_config: RydbergConfig, file_path: str = ptf_path):
+def save_ptf(model_config: TransformerConfig, train_config: TrainConfig, rydberg_config: RydbergConfig, file_path: str = tf_path):
     """Function to write the configuration to a json file"""
     with open(file_path, "w") as f:
         json.dump({"model_config": model_config._asdict(), "train_config": train_config._asdict(), "hamiltonian_config": rydberg_config._asdict()}, f, indent=4)
@@ -252,12 +258,12 @@ def load_config(record_type: ModelType):
     if record_type == ModelType.RNN:
         with open(rnn_path, "r") as f:
             return json.load(f)
-    elif record_type == ModelType.PatchedTRANSFORMER:
-        with open(ptf_path, "r") as f:
+    elif record_type == ModelType.Transformer:
+        with open(tf_path, "r") as f:
             return json.load(f)
-    else:
-        with open(lptf_path, "r") as f:
-            return json.load(f)
+    # else:
+    #     with open(lptf_path, "r") as f:
+    #         return json.load(f)
         
 
 # Extract Command Line Arguments from PatchedTransformer/LargePatchedTransformer
@@ -269,7 +275,7 @@ def extract_args(model_type: ModelType):
     # Return the list of arguments/flags
 
     # Step 1
-    config = load_config(ModelType.PatchedTRANSFORMER) if model_type == ModelType.PatchedTRANSFORMER else load_config(ModelType.LargePatchedTRANSFORMER)
+    config = load_config(ModelType.Transformer)
     model_config = LargePatchedTransformerConfig(**config["model_config"])
     train_config = TrainConfig(**config["train_config"])
     rydberg_config = RydbergConfig(**config["hamiltonian_config"])
@@ -326,3 +332,140 @@ def run_tf_model(model, full_opt, opt_dict):
         1/0
     sys.stdout = orig_stdout
     f.close()
+
+
+compare_arrs = lambda x, y: (x == y).all()
+
+def state_flipper(idx, s_state):
+    new_state = copy.deepcopy(s_state)
+    new_state[idx] = 1 - new_state[idx]
+    return new_state
+
+state = np.random.randint(0, 2, 16)
+flip_idex = np.random.randint(0, 16, 1)
+
+
+def fake_logpsi(flipped_state, params, model):
+    if np.array_equal(flipped_state, state):
+        print("something is wrong")
+        return 25
+    
+    lgp = np.log(np.mean(flipped_state)) + params + model
+    return lgp
+
+
+def fake_step_fn_transverse(i, holder, Omega, log_psi, params, model):
+    f_state, output = holder
+    flipped_state = state_flipper(i, f_state)
+    flipped_logpsi = fake_logpsi(flipped_state, params, model)
+    output += - 0.5 * Omega * np.exp(flipped_logpsi - log_psi) # Something about the Rabi frequency
+    return f_state, output
+
+
+def check_transverse_fn(user_func):
+    print("checking to see if tranverse_fn works")
+    Omega = 1.0
+    log_psi = 0.00002
+    params = .00005
+    model = .00007
+    output = 0
+    i = np.random.randint(0, 16, 1)
+    state_cp_2 = copy.deepcopy(state)
+    state_cp_1 = copy.deepcopy(state)
+
+    # try checker function
+    check_arr, check_out = fake_step_fn_transverse(i, (state_cp_2, output), Omega, log_psi, params, model)
+    user_arr, user_out = user_func(i, (state_cp_1, output))
+
+
+    arrs_eq = (check_arr == user_arr).all()
+    outs_eq = check_out == user_out
+    return(arrs_eq and outs_eq)
+
+
+def check_flip_state(user_func):
+    print("checking to see if flip_state works")
+    c_state = np.random.randint(0, 2, 16)
+
+    # we have to do this because arrays are passed by reference
+    # we want independent results
+    c_state_cp = copy.deepcopy(c_state) 
+
+    correct_result = state_flipper(flip_idex, c_state)
+    user_result =  user_func(flip_idex, c_state_cp)
+
+    return (user_result == correct_result).all()
+
+
+
+def extract_loc_e(code: str) -> bool:
+    # Parse the provided code into an AST
+    tree = ast.parse(code)
+    
+    # Initialize the flag to check if the student has passed the test
+    passed_test = False
+    
+    # Define a visitor class to visit nodes in the AST
+    class Visitor(ast.NodeVisitor):
+        def visit_Assign(self, node):
+            nonlocal passed_test
+            # Check if the assigned variable is 'loc_e'
+            if isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'loc_e':
+                print([n for n in node.targets])
+                # print(node.value.left)
+                # Check if the value is a BinOp (binary operation) representing a sum
+                # if isinstance(node.value, ast.BinOp):
+                if isinstance(node.value, ast.Assign):
+                    # Check if the left and right sides are also sums
+                    terms = [node.value.left, node.value.right]
+                    # for l, term in enumerate(terms):
+                    #     print(l)
+                    #     print(term)
+                    #     print(isinstance(term, ast.BinOp))
+                    #     print(node.value.left.right.id)
+
+                    if all(isinstance(term, ast.BinOp) for term in terms):
+                        # Extract the actual variable names and check if they match
+                        variables = [terms[0].left, terms[0].right, terms[1].right]
+                        # print(f"{variables=}")
+                        variable_names = {var.id for var in variables if isinstance(var, ast.Name)}
+                        expected_names = {'interaction_term', 'transverse_field', 'chemical_potential'}
+                        if variable_names == expected_names:
+                            passed_test = True
+    
+    # Create an instance of the visitor and visit the parsed AST
+    visitor = Visitor()
+    visitor.visit(tree)
+    
+    return passed_test
+
+
+class LineCollector(ast.NodeVisitor):
+    def __init__(self):
+        self.target_line = None
+
+    def visit_Assign(self, node):
+        if isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'loc_e':
+            self.target_line = node.lineno
+        self.generic_visit(node)
+
+
+def meets_cond(target_str: str):
+    terms = target_str.split()
+    if len(terms) < 7:
+        return False
+    
+    terms_target = set([terms[i] for i in (2, 4, 6)])
+
+    target_0 = "loc_e"
+    target_1 = "="
+    target_3_5 = "+"
+    targets_2_4_6 = set(["interaction_term", "transverse_field", "chemical_potential"])
+
+    all_met = terms[0] == target_0 and \
+        terms[1] == target_1 and \
+        terms[3] == target_3_5 and \
+        terms[5] == target_3_5 and \
+        terms_target == targets_2_4_6
+    
+    return all_met

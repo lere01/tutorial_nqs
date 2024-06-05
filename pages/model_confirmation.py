@@ -71,6 +71,7 @@ if st.button("Confirm Model"):
                 - :blue[Loss Function]: - This is the expectation value of the local energy
             """)
         except Exception as e:
+            st.text({e})
             st.write(f"Something went wrong. {e}\n\n")
             st.write("Please, close the app and restart it. Or call the attention of the developer.")
 
