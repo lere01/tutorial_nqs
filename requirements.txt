@@ -11,6 +11,7 @@ ml_collections
 mpmath
 networkx
 numpy
+orbax
 pandas
 pydantic
 streamlit
