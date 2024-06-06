@@ -19,22 +19,13 @@ You can consult the links for further knowledge.
 Let us consider the physics of the problem.
 
 - We are looking at a 2D lattice of Rydberg atoms
-- We will be using the Ising Model
+- We will be using the Rydberg Hamiltonian
 - We are assuming all-to-all interaction between all lattice sites
-- The Hamiltonian is as follows
-
-$$
-\begin{equation}
-    \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
-\end{equation}
-$$
-
-where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
 
 ## Models
 
 - Recurrent Neural Network (Gated Recurrent Unit)
-- Transfomer (with Multihead Self-Attention)
+- Transformer (with Multihead Self-Attention)
 
 ## Language/Framework
 
