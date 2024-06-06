@@ -39,8 +39,8 @@ def main():
     # Body Section
     st.markdown(
         """
-            In this tutorial, we will be trying three model architectures - Recurrent Neural Network (see this [paper](https://arxiv.org/pdf/2203.04988)) and, 
-            Patched Transformer and Large Patched Transformer (see this [paper](https://www.nature.com/articles/s42005-024-01584-y)). For those who might be interested in the detail, we will be using the Gated Recurrent Unit (GRU) flavour of the RNN. 
+            In this tutorial, we will be trying two model architectures - Recurrent Neural Network (see this [paper](https://arxiv.org/pdf/2203.04988)) and, 
+            Transformer (see this [paper](https://www.nature.com/articles/s42005-024-01584-y)). For those who might be interested in the detail, we will be using the Gated Recurrent Unit (GRU) flavour of the RNN. 
             On this page, you will be able to do three things:
             
             - Select which of the two models you would like to use
@@ -86,7 +86,7 @@ def main():
             tab1, tab2 = st.tabs(["Model Configuration", "VMC Configuration"])
             with tab1:
                 output_dim = st.number_input("Output Dimension (Only 2 is supported)", min_value=2, max_value=2, value=2, disabled=True)
-                num_hidden_units = st.number_input("Number of Hidden Units", min_value=4, max_value=64, value=64, step=4)
+                num_hidden_units = st.number_input("Number of Hidden Units", min_value=4, max_value=128, value=64, step=4)
                 model_config = RNNConfig(output_dim, num_hidden_units)
 
             with tab2:

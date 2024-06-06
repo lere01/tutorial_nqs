@@ -26,7 +26,7 @@ RNNConfigDescription = {
 class VMCConfig(NamedTuple):
     n_samples: int = 1000
     nx: int = 4
-    learning_rate: float = 0.01
+    learning_rate: float = 0.005
     num_epochs: int = 1000
     output_dim: int = 2
     sequence_length: int = 16
@@ -190,7 +190,7 @@ def get_widget(description, field_type, default_value, disabled=False):
         if field_type == int:
             return st.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
         elif field_type == float:
-            return st.number_input(description, min_value=0.00000, value=default_value, step=0.001, disabled=disabled)
+            return st.number_input(description, min_value=0.00000, value=default_value, step=0.00001, disabled=disabled)
         elif field_type == str:
             return st.text_input(description, value=default_value, disabled=disabled)
 
@@ -199,7 +199,7 @@ def get_sidebar_widget(description, field_type, default_value, disabled=False):
             if field_type == int:
                 return st.sidebar.number_input(description, min_value=0, value=default_value, step=1, disabled=disabled)
             elif field_type == float:
-                return st.sidebar.number_input(description, min_value=0.00005, value=default_value, step=0.001, disabled=disabled)
+                return st.sidebar.number_input(description, min_value=0.00005, value=default_value, disabled=disabled)
             elif field_type == str:
                 return st.sidebar.text_input(description, value=default_value, disabled=disabled)
     

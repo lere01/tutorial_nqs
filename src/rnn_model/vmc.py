@@ -9,7 +9,14 @@ from jax import random, jit, lax, value_and_grad
 from flax import linen as nn
 from functools import partial
 import jax.tree_util as tree_util   
+import os
 import optax
+import pickle
+import shutil
+from flax import serialization
+from flax.training import checkpoints, train_state
+from orbax import checkpoint
+from flax.training import orbax_utils
 
 @dataclass
 class VMC(ABC):
@@ -114,31 +121,65 @@ class VMC(ABC):
     
 
     def train(self, rng_key, params, model):
+        chk_dir = "tmp"
+        os.makedirs(chk_dir, exist_ok=True)
+
+        ckpt_dir = '/tmp/flax_ckpt'
+        ckpt_dir2 = '/tmp/flax_ckpt2'
+        if os.path.exists(ckpt_dir):
+            shutil.rmtree(ckpt_dir) 
+
         print('Training started')
-        
+
         optimizer = optax.adam(learning_rate=self.learning_rate)
         opt_state = optimizer.init(params)
 
         loss_fn = self.get_loss
     
+        # opt_state = train_state.TrainState.create(
+        #     apply_fn=model.apply,
+        #     params=params,
+        #     tx=optimizer
+        # )
+        # params = opt_state.params
 
         @partial(jit, static_argnums=(3,))
         def step(params, rng_key, opt_state, get_loss=loss_fn):
             rng_key, new_key = random.split(rng_key)
 
             value, grads = value_and_grad(get_loss, has_aux=True)(params, rng_key, model)
+            # opt_state.apply_gradients(grads, params)
             updates, opt_state = optimizer.update(grads, opt_state, params)
             params = optax.apply_updates(params, updates)
             return new_key, params, opt_state, value
 
         energies = []
+        # options = checkpoint.CheckpointManagerOptions(max_to_keep=10, create=True)
+        # checkpoint_manager = checkpoint.CheckpointManager(
+        #     chk_dir, orbax_checkpointer, options)
+        
         for i in range(self.num_epochs):
             rng_key, params, opt_state, (loss, eloc) = step(params, rng_key, opt_state)
             energies.append(eloc)
 
             if i % 100 == 0:
                 print(f'step {i}, loss: {loss}')
+            
+            # ckpt = {'model': opt_state}
+            # save_args = orbax_utils.save_args_from_target(ckpt)
+            # checkpoint_manager.save(step, ckpt, save_kwargs={'save_args': save_args})
 
+        
+        # ckpt = {'model': opt_state}
+        # orbax_checkpointer = checkpoint.PyTreeCheckpointer()
+        # save_args = orbax_utils.save_args_from_target(ckpt)
+        # orbax_checkpointer.save(ckpt_dir2, ckpt, save_args=save_args)
+
+
+        bytes_output = serialization.to_bytes(params)
+        with open('model_params3.pkl', 'wb') as f:
+            f.write(bytes_output)
+        
         return energies
     
     

@@ -14,6 +14,7 @@ st.title("Neural Networks for Wave Functions Parameterization")
 
 cwd = os.getcwd()
 image_path = os.path.join(cwd, "static", "nn_models.png")
+# training_image = os.path.join(cwd, "static", "training.png")
 st.image(image_path)
 
 # Body Section
@@ -75,10 +76,17 @@ st.markdown(
     """
 )
 
-# Next Page
-st.write(
-    """
+# Next Pages
+# st.image(training_image)
+st.markdown(
+    r"""
         ---
+
+        There are two parts of this exercise
+
+        - Train a model to search for the ground state energy. Your result would look like the picture above.
+        - Sample from a trained network and compute observables
+        
         Let's Get Started. Click the button below to get started.
     """
 )

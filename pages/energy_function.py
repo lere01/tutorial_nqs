@@ -6,6 +6,7 @@ import copy
 import json
 import streamlit as st
 import textwrap
+import pickle
 from code_editor import code_editor
 from streamlit_extras.let_it_rain import rain
 from streamlit_extras.switch_page_button import switch_page
@@ -237,6 +238,9 @@ if completed_code["type"] == "submit":
                     e_den = my_vmc.train(random.PRNGKey(123), params, st.session_state.model)
 
                     st.session_state.densities = [(i.mean() / st.session_state.vmc_config.sequence_length).item() for i in e_den]
+                    with open("reults.pkl", "wb") as f:
+                        pickle.dump(st.session_state.densities, f)
+                        
                     st.session_state.training_completed = True
 
                 energy_plot(st.session_state.densities)
