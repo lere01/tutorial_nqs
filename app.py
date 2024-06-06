@@ -34,8 +34,9 @@ st.markdown(
             - [Czischek et. al., 2022](https://arxiv.org/pdf/2203.04988)
             - [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
             - [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+            - [QuCumber](https://github.com/PIQuIL/QuCumber)
 
-        - With permission, code in the following repository was used for patched transformer and large patched transformer models:
+        - With permission, code in the following repository was used for the transformer:
             - https://github.com/APRIQuOt/VMC_with_LPTF
 
         ### Physics of the Problem
@@ -84,10 +85,11 @@ st.markdown(
 
         There are two parts of this exercise
 
-        - Train a model to search for the ground state energy. Your result would look like the picture above.
-        - Sample from a trained network and compute observables
-        
-        Let's Get Started. Click the button below to get started.
+        - Train a model to search for the ground state energy. To get started, click the button below.
+        - Sample from a trained network and compute observables. To complete this exercise, visit the `notebook` folder in 
+        the root directory and consult the notebook, `off_diagonals.ipynb`
+
+        HAVE FUN!
     """
 )
 
