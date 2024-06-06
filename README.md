@@ -2,7 +2,7 @@
 
 A tutorial to introduce Physicists to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms
 
-The following resources were consulted for this tutorial
+The following resources were consulted for this tutorial. You can consult them for further knowledge.
 
 - [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
 - [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
@@ -11,7 +11,9 @@ The following resources were consulted for this tutorial
 - [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
 - [QuCumber](https://github.com/PIQuIL/QuCumber)
 
-You can consult the links for further knowledge.
+With permission, code in the [APRIQUOT](https://github.com/APRIQuOt/VMC_with_LPTF) repository was used in the transformer training
+
+**Check [how to use](#how-to-use) for usage on different platforms**
 
 
 ## Physics of the Problem
@@ -21,6 +23,14 @@ Let us consider the physics of the problem.
 - We are looking at a 2D lattice of Rydberg atoms
 - We will be using the Rydberg Hamiltonian
 - We are assuming all-to-all interaction between all lattice sites
+
+## Goals
+
+The learning objectives include
+
+- Seeing a deep learning model combined with variational ansatz to search for ground state
+- Learning how the Hamiltonian of the problem slots into a machine learning framework. Our loss function would be the expectation of the Hamiltonian
+- Using a trained network to compute observables of a system
 
 ## Models
 
@@ -43,6 +53,8 @@ You should have both of the following installed on your local machine one way or
 
 
 ## How to Use
+
+Follow these instructions for usage. [Max/Unix](#unixmac), [Windows](#windows), [Makefile](#advanced-users-makefile)
 
 ### Unix/Mac
 
