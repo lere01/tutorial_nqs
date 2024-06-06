@@ -2,13 +2,14 @@
 
 A tutorial to introduce Physicists to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms
 
-Inspiration (and some code) for this tutorial was drawn from 
+The following resources were consulted for this tutorial
 
 - [Sprague and Czischek, 2024](https://www.nature.com/articles/s42005-024-01584-y)
 - [Zhang and Ventra, 2023](https://physics.paperswithcode.com/paper/transformer-quantum-state-a-multi-purpose)
 - [Czischek et. al., 2022](https://arxiv.org/pdf/2203.04988)
 - [Hibat-Allah et. al., 2020](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.023358)
 - [Deep Learning Tutorial](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/JAX/tutorial6/Transformers_and_MHAttention.html)
+- [QuCumber](https://github.com/PIQuIL/QuCumber)
 
 You can consult the links for further knowledge.
 
@@ -24,8 +25,8 @@ Let us consider the physics of the problem.
 
 $$
 \begin{equation}
-\tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
-\end{equation}
+    \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
+\end{equation} 
 $$
 
 where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
@@ -37,16 +38,17 @@ where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
 
 ## Language/Framework
 
-- Python  remember to add links
-- Jax
-- Flax
+- [Python3](https://www.python.org)
+- [Jax](https://jax.readthedocs.io)
+- [Flax](https://flax.readthedocs.io)
+- [Torch](https://pytorch.org)
 
 ## Requirements
 
 You should have both of the following installed on your local machine one way or the other
 
-- Python
-- Git (You may need to download the folders as a compressed folder if you do not have git installed)
+- [Python3](https://www.python.org)
+- [Git](https://git-scm.com/) (You may need to download the folders as a compressed folder if you do not have git installed)
 
 
 ## How to Use
@@ -68,10 +70,10 @@ You should have both of the following installed on your local machine one way or
 3. Run the setup script:
 
     ```bash
-    bash setup.sh
+    bash run.sh
     ```
 
-Remember to run `chmod +x setup.sh` to make the script executable.
+Remember to run `chmod +x run.sh` to make the script executable before running. Some unix based systems allow you to simply double-click on the file.
 
 ### Windows
 
@@ -97,7 +99,7 @@ Note that opening the root directory in Windows Explorer and double clicking `ru
 
 ### Advanced Users (Makefile)
 
-If you are comfortable with using `makefile` then you can use the following commands
+The advantage of the Make commands is the fine grained control you get over running/stopping the app and cleaning your environment. So if you already have `make` setup on your PC/Mac, then using the following commands would serve better.
 
 1. Run the setup and start the application:
 
@@ -117,9 +119,4 @@ If you are comfortable with using `makefile` then you can use the following comm
     make clean
     ```
 
-
-These steps will ensure that the virtual environment is created, dependencies are installed, and the application is run, all with a single command, making it easier for students to get started.
-
-### Web Access
-
-If you do not want to go through the steps of downloading/cloning the repo, you can access the web app [here](https://nqs-tutorial.streamlit.app). But note that it may be slow to respond depending on whether the app has slept or not.
+These steps will ensure that the virtual environment is created, dependencies are installed, and the application is run, all with a single command, making it easier for you to get started.
