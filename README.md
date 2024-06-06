@@ -1,4 +1,4 @@
-# Tutorial at Quantum Algorithm Summer School
+# Deep Learning for Physics
 
 A tutorial to introduce Physicists to the idea of using Neural Networks for parameterizing wave functions. In our scenario, we combine variational monte carlo approach with a neural quantum state to search for the ground state of a 2D lattice of Rydberg atoms
 
