@@ -26,7 +26,7 @@ Let us consider the physics of the problem.
 $$
 \begin{equation}
     \tilde{H} = - \frac{\Omega}{2} \sum_{i = 1}^N \left( \hat{\sigma}_i^x \right) - \delta \sum_{i = 1}^N \left ( \hat{n}_i \right ) + \sum_{i,j} \left ( V_{ij} \hat{n}_i \hat{n}_j \right )
-\end{equation} 
+\end{equation}
 $$
 
 where $V_{ij} = \frac{7}{| \textbf{r}_i - \textbf{r}_j |^6}$.
